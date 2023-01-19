@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "grpc"
+version = "0.1.0"
+description = ""
+authors = ["Luidgi Gromat <gromat.luidgi@gmail.com>"]
+readme = "README.md"
+packages = [
+    {include = "server"},
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+grpcio = "^1.51.1"
+asyncio = "^3.4.3"
+uvicorn = "^0.20.0"
+protobuf = "^4.21.12"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

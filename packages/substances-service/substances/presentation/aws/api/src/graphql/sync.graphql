@@ -1,0 +1,42 @@
+schema {
+    query: Query
+}
+
+type Query {
+    getSync(id: String!): Sync
+    getSyncs(limit: Int, nextToken: String): SyncConnection
+}
+
+type Sync {
+    id: String!
+    createdAt: Int
+    provider: String
+}
+
+type SyncConnection {
+    syncs: [Sync]
+    nextToken: String
+}
+
+enum SyncState {
+    pending
+    checkin
+    checkout
+    completed
+    error
+}
+
+type SyncItem {
+    token: String!
+    location: String!
+    name: String
+    status: SyncItemStatus!
+}
+
+enum SyncItemStatus {
+    pending
+    extracted
+    transformed
+    loaded
+    error
+}

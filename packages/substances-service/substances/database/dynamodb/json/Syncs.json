@@ -1,0 +1,53 @@
+{
+    "TableName": "Syncs",
+    "KeySchema": [
+        {
+            "AttributeName": "id",
+            "KeyType": "HASH"
+        }
+    ],
+    "AttributeDefinitions": [
+        {
+            "AttributeName": "id",
+            "AttributeType": "S"
+        },
+        {
+            "AttributeName": "provider",
+            "AttributeType": "S"
+        },
+        {
+            "AttributeName": "createdAt",
+            "AttributeType": "N"
+        }
+    ],
+    "GlobalSecondaryIndexes": [
+        {
+            "IndexName": "SyncProviderIndex",
+            "KeySchema": [
+                {
+                    "AttributeName": "provider",
+                    "KeyType": "HASH"
+                },
+                {
+                    "AttributeName": "createdAt",
+                    "KeyType": "RANGE"
+                }
+            ],
+            "Projection": {
+                "ProjectionType": "INCLUDE",
+                "NonKeyAttributes": [
+                    "state",
+                    "dataLocation"
+                ]
+            },
+            "ProvisionedThroughput": {
+                "ReadCapacityUnits": 1,
+                "WriteCapacityUnits": 1
+            }
+        }
+    ],
+    "ProvisionedThroughput": {
+        "WriteCapacityUnits": 1,
+        "ReadCapacityUnits": 1
+    }
+}

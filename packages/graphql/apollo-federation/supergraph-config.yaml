@@ -1,0 +1,10 @@
+federation_version: 2
+subgraphs:
+  substances:
+    routing_url: https://flyby-locations-sub.herokuapp.com/
+    schema:
+      subgraph_url: https://flyby-locations-sub.herokuapp.com/
+  experiences:
+    routing_url: http://flyby-reviews-sub.herokuapp.com/
+    schema:
+      subgraph_url: https://flyby-reviews-sub.herokuapp.com/

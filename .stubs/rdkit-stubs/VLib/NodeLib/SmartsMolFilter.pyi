@@ -1,0 +1,6 @@
+from rdkit import Chem as Chem
+from rdkit.VLib.Filter import FilterNode as FilterNode
+
+class SmartsFilter(FilterNode):
+    def __init__(self, patterns=..., counts=..., **kwargs) -> None: ...
+    def filter(self, cmpd): ...

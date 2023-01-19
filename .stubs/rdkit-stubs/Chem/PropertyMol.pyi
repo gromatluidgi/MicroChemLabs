@@ -1,0 +1,6 @@
+from rdkit import Chem as Chem
+
+class PropertyMol(Chem.Mol):
+    __getstate_manages_dict__: bool
+    def __init__(self, mol) -> None: ...
+    def SetProp(self, nm, val) -> None: ...

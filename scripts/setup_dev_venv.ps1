@@ -1,0 +1,1 @@
+print .\.venv\Scripts\activate

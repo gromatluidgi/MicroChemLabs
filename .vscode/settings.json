@@ -1,0 +1,70 @@
+{
+    // Testing
+    "python.testing.pytestArgs": [
+        "-v",
+        "-s",
+        "--log-cli-level=DEBUG"
+    ],
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    "python.testing.autoTestDiscoverOnSaveEnabled": false,
+
+
+    // Linting
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.mypyEnabled": true,
+    "python.linting.banditEnabled": true,
+    "python.linting.flake8Enabled": true,
+    "python.linting.ignorePatterns": [ "tests/**/*.py", "test_*.py" ],
+    "python.linting.pylintArgs": [
+        "--init-hook",
+        "import sys; sys.path.insert(0, '../.stubs/rkdit-stubs')",
+    ],
+    "python.linting.mypyArgs": [
+        "--show-column-numbers",
+        "--strict",
+        "--exclude /tests/"
+    ],
+    "python.linting.banditArgs": [
+        "-s B101",
+        "--silent"
+    ],
+
+    // Formatting
+    "python.formatting.provider": "black",
+    
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true,
+        },
+    },
+
+    "[yaml]": {
+        "editor.formatOnSave": true,
+    },
+
+    "isort.args": [
+        "--profile",
+        "black"
+    ],
+
+    "files.exclude": {
+        "**/__pycache__": true
+    },
+    "python.analysis.extraPaths": [
+        "./packages/substances-service/substances/database/postgresql",
+        "./packages/substances-service/substances/database/dynamodb",
+        "./packages/substances-service/substances/database/inmemory",
+        "./packages/substances-service/substances/infrastructure/rabbitmq",
+        "./packages/substances-service/substances/database/inmemory",
+        "./packages/substances-service/substances/infrastructure/importers",
+        "./packages/substances-service/substances/core",
+        "./packages/shared-kernel",
+        "./packages/substances-service/substances/infrastructure/etl",
+        "./packages/substances-service/substances/infrastructure/serverless/queue"
+    ],
+
+}

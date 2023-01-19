@@ -1,0 +1,2 @@
+class PuchemETLStandalone:
+    pass

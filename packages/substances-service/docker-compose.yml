@@ -1,0 +1,97 @@
+version: '3'
+
+services:
+
+  postgresql:
+    container_name: mcl-substances-postgresql
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=true
+      - POSTGRES_PASSWORD=false
+    networks:
+      - default
+    volumes:
+      - C:/_docker/_data/substances-postgresql:/var/lib/postgresql/data
+
+  rabbitmq:
+    container_name: mcl-substances-rabbitmq
+    image: rabbitmq:3
+    ports:
+      - 15672:15672
+      - 5672:5672
+    networks:
+      - default
+    volumes:
+      - C:/_docker/_data/mcl-rabbitmq:/var/lib/rabbitmq
+
+  # elasticsearch:
+  #   container_name: vlab-substances-elasticsearch
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.5.3
+  #   ports:
+  #     - 9200:9200
+  #   environment:
+  #     - node.name=vlab-substances-elasticsearch01
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #     - discovery.type=single-node
+  #   volumes:
+  #     - elasticsearch-data:/usr/share/elasticsearch/data
+  #   networks:
+  #     - default
+
+  # kibana:
+  #   container_name: vlab-substances-kibana
+  #   image: docker.elastic.co/kibana/kibana:8.5.3
+  #   ports:
+  #     - 5601:5601
+  #   depends_on:
+  #     - elasticsearch
+  #   environment:
+  #     - ELASTICSEARCH_URL="http://elasticsearch:9200"
+  #   networks:
+  #     - default
+
+  graphql:
+    container_name: mcl-substances-graphql
+    image: mcl.substances.graphql
+    build:
+      context: ../
+      dockerfile: substances-service/substances/presentation/graphql/Dockerfile
+    ports:
+      - 4000:4000
+    networks:
+      - default
+
+  grpc:
+    container_name: mcl-substances-grpc
+    image: mcl.substances.grpc
+    build:
+      context: ../
+      dockerfile: substances-service/substances/presentation/grpc/Dockerfile
+    ports:
+      - 50051:50051
+    networks:
+      - default
+
+  rest-api:
+    container_name: mcl-substances-rest-api
+    image: mcl.substances.restapi
+    build:
+      context: ../
+      dockerfile: substances-service/substances/presentation/rest/Dockerfile
+    networks:
+      - default
+    depends_on:
+      - postgresql
+      - rabbitmq
+      - graphql
+      - grpc
+
+volumes:
+  elasticsearch-data:
+
+
+networks:
+  default:
+    name: microchemlabs

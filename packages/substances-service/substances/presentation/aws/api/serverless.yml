@@ -1,0 +1,196 @@
+service: substances-service
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: python3.9
+  stackName: substances-service-stack-${sls:stage}
+  environment:
+    LogLevel: 1
+    DYNAMODB_NAMESPACE: ${sls:stage, "dev"}
+    EFS_MOUNT_DIR: /mnt/efs
+    LD_LIBRARY_PATH: /lib64:/usr/lib64:$LAMBDA_RUNTIME_DIR:$LAMBDA_RUNTIME_DIR/lib:$LAMBDA_TASK_ROOT:$LAMBDA_TASK_ROOT/lib:/opt/lib:/mnt/efs/lib
+    SYNCS_TABLE: substances-service-syncs-${sls:stage, "dev"}
+    SUBSTANCES_TABLE: substances-service-substances-${sls:stage, "dev"}
+  stage: dev
+  region: eu-west-3
+  # Default timeout for functions (default: 6 seconds)
+  # Note: API Gateway has a maximum timeout of 30 seconds
+  timeout: 60
+  # Use function versioning (enabled by default)
+  versionFunctions: false
+  # Configure the role that will be created by Serverless
+  iam:
+    role:
+      name: substances-service-${sls:stage}-role
+      managedPolicies:
+        - "arn:aws:iam::aws:policy/AmazonElasticFileSystemClientReadWriteAccess"
+      statements:
+        # Allow functions to use SQS Queue
+        # More infos: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-template-list.html#sqs-send-message-policy
+        - Effect: Allow
+          Action:
+            - sqs:SendMessage*
+          Resource: "*"
+        # Allow functions to read/write to DynamoDB
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:DescribeTable
+            - dynamodb:BatchWriteItem
+          Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/*"
+  # Configure existing security group and sub network
+  vpc:
+    securityGroupIds:
+      - sg-061b4f4b910c2070a
+    subnetIds:
+      - subnet-08384b5c038cffc65 # Private Subnet
+      - subnet-0b2e7cde0e5e79531 # Private Subnet
+
+plugins:
+  - serverless-step-functions
+  - serverless-python-requirements
+
+custom:
+  efsAccessPoint: fs-0a36615b9166e976d
+  LocalMountPath: "/mnt/efs"
+  pythonRequirements:
+    slim: true
+    strip: false
+    useDownloadCache: false
+    useStaticCache: false
+    invalidateCaches: true
+    dockerizePip: true
+    dockerRunCmdExtraArgs:
+      [
+        "--mount",
+        "type=bind,source=C:/_dev/MicroChemLabs/packages/science-kernel,target=/C:/_dev/MicroChemLabs/packages/science-kernel",
+        "--mount",
+        "type=bind,source=C:/_dev/MicroChemLabs/packages/shared-kernel,target=/C:/_dev/MicroChemLabs/packages/shared-kernel",
+        "--mount",
+        "type=bind,source=C:/_dev/MicroChemLabs/packages/substances-service/substances/core,target=/C:/_dev/MicroChemLabs/packages/substances-service/substances/core",
+        "--mount",
+        "type=bind,source=C:/_dev/MicroChemLabs/packages/substances-service/substances/database/dynamodb,target=/C:/_dev/MicroChemLabs/packages/substances-service/substances/database/dynamodb",
+        "--mount",
+        "type=bind,source=C:/_dev/MicroChemLabs/packages/substances-service/substances/infrastructure/etl,target=/C:/_dev/MicroChemLabs/packages/substances-service/substances/infrastructure/etl",
+        "--mount",
+        "type=bind,source=C:/_dev/MicroChemLabs/packages/substances-service/substances/infrastructure/serverless/queue,target=/C:/_dev/MicroChemLabs/packages/substances-service/substances/infrastructure/serverless/queue",
+        "--mount",
+        "type=bind,source=C:/_dev/MicroChemLabs/packages/substances-service/substances/infrastructure/importers,target=/C:/_dev/MicroChemLabs/packages/substances-service/substances/infrastructure/importers",
+      ]
+    noDeploy:
+      - rdkit
+      - pandas
+      - numpy
+    layer:
+      name: substances-service-python-layer-${sls:stage}
+      description: Python requirements lambda layer
+      compatibleRuntimes:
+        - python3.9
+
+# Functions
+functions:
+  - ${file(./src/lambdas/syncs/transform_sync/serverless.yml)}
+  - ${file(./src/lambdas/syncs/execute_sync/serverless.yml)}
+  - ${file(./src/lambdas/syncs/extract_sync/serverless.yml)}
+  - ${file(./src/lambdas/syncs/load_sync/serverless.yml)}
+
+stepFunctions:
+  stateMachines:
+    substanceSyncStepFunction:
+      events:
+        - http:
+            path: syncs
+            method: POST
+      definition:
+        StartAt: ExecuteSync
+        States:
+          ExecuteSync:
+            Type: Task
+            Resource: "arn:aws:lambda:${aws:region}:${aws:accountId}:function:substances-service-${sls:stage}-executeSync"
+            Next: ExtractSync
+          ExtractSync:
+            Type: Task
+            Resource: "arn:aws:lambda:${aws:region}:${aws:accountId}:function:substances-service-${sls:stage}-extractSync"
+            Next: ContinueSyncChoice
+          ContinueSyncChoice:
+            Type: Choice
+            Choices:
+              - Variable: "$.has_items"
+                BooleanEquals: true
+                Next: TransformSync
+            Default: NoSyncFallback
+          TransformSync:
+            Type: Task
+            Resource: "arn:aws:lambda:${aws:region}:${aws:accountId}:function:substances-service-${sls:stage}-transformSync"
+            Next: LoadSync
+          LoadSync:
+            Type: Task
+            Resource: "arn:aws:lambda:${aws:region}:${aws:accountId}:function:substances-service-${sls:stage}-loadSync"
+            End: true
+          NoSyncFallback:
+            Type: Pass
+            Result: "No data to sync"
+            End: true
+# Resources
+resources:
+  Resources:
+    # SQS Queue
+    SyncsSqsQueue:
+      Type: AWS::SQS::Queue
+
+    # DynamoDB
+    SyncsDynamoDBTable:
+      Type: "AWS::DynamoDB::Table"
+      DeletionPolicy: Delete
+      Properties:
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: provider
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: N
+        GlobalSecondaryIndexes:
+          - IndexName: SyncProviderIndex
+            KeySchema:
+              - AttributeName: provider
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - state
+                - dataLocation
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: substances-service-syncs-${sls:stage}
+
+    SubstancesDynamoDBTable:
+      Type: "AWS::DynamoDB::Table"
+      DeletionPolicy: Delete
+      Properties:
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 25
+        TableName: substances-service-substances-${sls:stage}

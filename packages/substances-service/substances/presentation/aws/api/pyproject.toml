@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "substances-serverless"
+version = "0.1.0"
+description = ""
+authors = ["Luidgi Gromat <gromat.luidgi@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+shared-kernel = "0.1.0"
+science-kernel = "0.1.0"
+substances-core = { path= "../../../core", develop = false}
+substances-dynamodb = { path= "../../../database/dynamodb", develop = false}
+substances-etl = { path= "../../../infrastructure/etl", develop = false}
+substances-aws-queue = { path= "../../../infrastructure/serverless/queue", develop = false}
+substances-importers = { path= "../../../infrastructure/importers", develop = false}
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.0"
+moto = "^4.0.12"
+boto3 = "^1.26.38"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

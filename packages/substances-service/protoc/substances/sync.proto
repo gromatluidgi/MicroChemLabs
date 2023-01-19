@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package syncs;
+
+
+service Syncs {
+    rpc ListSyncs (ListRequest) returns (ListResponse) {}
+    rpc GetSync (GetRequest) returns (ItemResponse) {}
+}
+
+message ListRequest {
+    int32 offset = 1;
+    int32 limit = 2;
+    repeated string ordering = 3;
+}
+
+message GetRequest {
+    string id = 1;
+}
+
+message ListResponse {
+    int32 count = 1;
+}
+
+message ItemResponse {
+    string id = 1;
+    string provider = 2;
+}

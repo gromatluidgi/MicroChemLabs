@@ -1,0 +1,6 @@
+from _typeshed import Incomplete
+from rdkit.VLib.Node import VLibNode as VLibNode
+
+class OutputNode(VLibNode):
+    def __init__(self, dest: Incomplete | None = ..., strFunc: Incomplete | None = ..., **kwargs) -> None: ...
+    def next(self): ...

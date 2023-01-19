@@ -1,0 +1,18 @@
+# Lambda Functions
+extractSync:
+  handler: src/lambdas/syncs/extract_sync/handler.handle
+  timeout: 240
+  layers:
+    - !Ref PythonRequirementsLambdaLayer
+  package:
+    individually: true
+    exclude:
+      - "./**"
+    include:
+      - ./src/lambdas/syncs/extract_sync/factories.py
+      - ./src/lambdas/syncs/extract_sync/dependencies.py
+      - ./src/lambdas/syncs/extract_sync/handler.py
+    # Configure EFS
+  fileSystemConfig:
+    arn: "arn:aws:elasticfilesystem:${aws:region}:${aws:accountId}:access-point/fsap-00444d993db812161"
+    localMountPath: "${self:custom.LocalMountPath}"

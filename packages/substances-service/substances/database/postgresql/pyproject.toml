@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "substances-postgresql"
+version = "0.1.0"
+description = ""
+authors = ["Luidgi Gromat <gromat.luidgi@gmail.com>"]
+readme = "README.md"
+packages = [{include = "substances_postgresql"}, {include= "substances_postgresql/py.typed"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+substances-core = { path= "../../core", develop = true}
+shared-kernel = "^0.1.0"
+sqlalchemy = "^1.4.45"
+psycopg2 = "^2.9.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^0.991"
+black = "^22.12.0"
+pylint = "^2.15.8"
+bandit = "^1.7.4"
+flask = "^2.2.2"
+isort = "^5.11.3"
+flake8 = "^6.0.0"

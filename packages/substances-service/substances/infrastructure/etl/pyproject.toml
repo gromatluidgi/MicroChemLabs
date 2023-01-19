@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "substances-etl"
+version = "0.1.0"
+description = ""
+authors = ["Luidgi Gromat <gromat.luidgi@gmail.com>"]
+readme = "README.md"
+packages = [
+    {include = "substances_etl"}, {include = "substances_etl/py.typed"}
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+science-kernel = "0.1.0"
+jsonpickle = "^3.0.0"
+pysftp = "^0.2.9"
+pandas = { version = "^1.5.2", optional = true }
+rdkit = { version = "^2022.9.3", optional = true }
+
+[tool.poetry.extras]
+pandas = ["pandas"]
+rdkit = ["rdkit"]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.0"
+bandit = "^1.7.4"
+pylint = "^2.15.9"
+mypy = "^0.991"
+flask = "^2.2.2"
+isort = "^5.11.3"
+black = "^22.12.0"
+flake8 = "^6.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

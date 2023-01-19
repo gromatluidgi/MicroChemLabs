@@ -1,0 +1,19 @@
+from typing import Any, ClassVar
+
+import Boost.Python
+
+class JSONParseParameters(Boost.Python.instance):
+    __instance_size__: ClassVar[int] = ...
+    parseConformers: Any
+    parseProperties: Any
+    setAromaticBonds: Any
+    strictValenceCheck: Any
+    useHCounts: Any
+    @classmethod
+    def __init__(cls, *args, **kwargs) -> None: ...
+    @classmethod
+    def __reduce__(cls) -> Any: ...
+
+def JSONToMols(*args, **kwargs) -> Any: ...
+def MolToJSON(classRDKit) -> Any: ...
+def MolsToJSON(classboost) -> Any: ...

@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "substances-dynamodb"
+version = "0.1.0"
+description = ""
+license = "MIT"
+authors = ["Luidgi Gromat <gromat.luidgi@gmail.com>"]
+readme = "README.md"
+packages = [{include = "substances_dynamodb"}, {include= "substances_dynamodb/py.typed"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+
+[tool.poetry.group.dev.dependencies]
+moto = "^4.0.12"
+boto3 = "^1.26.39"
+coverage = "^7.0.4"
+pytest = "^7.2.0"
+pytest-cov = "^4.0.0"
+
+[tool.coverage.paths]
+source = ["substances_dynamodb"]
+
+[tool.coverage.run]
+branch = true
+source = ["substances_dynamodb"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

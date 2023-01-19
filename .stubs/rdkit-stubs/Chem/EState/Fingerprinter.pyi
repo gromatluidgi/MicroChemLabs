@@ -1,0 +1,3 @@
+from rdkit.Chem.EState import AtomTypes as AtomTypes, EStateIndices as EStateIndices
+
+def FingerprintMol(mol): ...

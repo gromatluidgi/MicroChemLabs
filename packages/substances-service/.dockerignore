@@ -1,0 +1,10 @@
+*.md
+scripts
+migrations
+docs
+resources
+.github
+**/__pycache__
+**/tests
+**/lambda
+poetry.lock

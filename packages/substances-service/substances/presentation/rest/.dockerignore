@@ -1,0 +1,5 @@
+*.md
+.github
+**/__pycache__
+**/tests
+poetry.lock

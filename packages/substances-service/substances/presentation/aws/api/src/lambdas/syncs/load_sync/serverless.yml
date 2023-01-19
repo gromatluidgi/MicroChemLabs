@@ -1,0 +1,18 @@
+# Lambda Functions
+loadSync:
+  handler: src/lambdas/syncs/load_sync/handler.handle
+  timeout: 900
+  layers:
+    - !Ref PythonRequirementsLambdaLayer
+  package:
+    individually: true
+    exclude:
+      - "./**"
+    include:
+      - ./src/lambdas/syncs/load_sync/factories.py
+      - ./src/lambdas/syncs/load_sync/dependencies.py
+      - ./src/lambdas/syncs/load_sync/handler.py
+    # Configure EFS
+  fileSystemConfig:
+    arn: "arn:aws:elasticfilesystem:${aws:region}:${aws:accountId}:access-point/fsap-00444d993db812161"
+    localMountPath: "${self:custom.LocalMountPath}"

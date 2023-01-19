@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "substances-inmemory"
+version = "0.1.0"
+description = ""
+authors = ["Luidgi Gromat <gromat.luidgi@gmail.com>"]
+readme = "README.md"
+packages = [{include = "substances_inmemory"}, {include= "substances_inmemory/py.typed"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+shared-kernel = "^0.1.0"
+substances-core = { path= "../../core", develop = true}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

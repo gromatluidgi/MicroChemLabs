@@ -1,0 +1,1 @@
+- Sync aggregate can be converted to Event/Job aggregate and handled with outbox pattern ?

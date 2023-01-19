@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "science-kernel"
+version = "0.1.0"
+description = ""
+authors = ["Luidgi Gromat <gromat.luidgi@gmail.com>"]
+readme = "README.md"
+packages = [{include = "sciences"}, {include= "sciences/py.typed"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+chembl-structure-pipeline = { version = "^1.2.0", optional = true }
+rdkit = { version = "^2022.9.3", optional = true }
+
+[tool.poetry.extras]
+rdkit = ["rdkit"]
+chembl = ["chembl-structure-pipeline"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
